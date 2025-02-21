@@ -7,18 +7,31 @@ const renderer = new THREE.WebGLRenderer({ alpha: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.getElementById('scene-container').appendChild(renderer.domElement);
 
-// Earth parameters (replacing particle sphere)
-const radius = 5; // Same radius as your particle Earth
-const earthGeometry = new THREE.SphereGeometry(radius, 32, 32); // Smooth sphere
+// Sphere (Earth-like) parameters
+const radius = 5;
+const particleCount = 1000;
 
+const vertices = [];
+for (let i = 0; i < particleCount; i++) {
+    const theta = Math.random() * 2 * Math.PI;
+    const phi = Math.acos(2 * Math.random() - 1);
+    const x = radius * Math.sin(phi) * Math.cos(theta);
+    const y = radius * Math.sin(phi) * Math.sin(theta);
+    const z = radius * Math.cos(phi);
+    vertices.push(x, y, z);
+}
 
-// Load Earth texture
-const textureLoader = new THREE.TextureLoader();
-const earthTexture = textureLoader.load('E:\website.xyz\face\earth with moon\textures'); // Path to your file
-const earthMaterial = new THREE.MeshStandardMaterial({ map: earthTexture });
-const earth = new THREE.Mesh(earthGeometry, earthMaterial);
-scene.add(earth);
-earth.position.set(0, 0, 0); // Same position as numberSphere
+const geometry = new THREE.BufferGeometry();
+geometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
+const material = new THREE.PointsMaterial({
+    color: 0xffffff,
+    size: 0.1,
+    transparent: true,
+    opacity: 0.8
+});
+const numberSphere = new THREE.Points(geometry, material);
+scene.add(numberSphere);
+numberSphere.position.set(0, 0, 0);
 
 // Moon parameters
 const moonRadius = 1;
@@ -60,10 +73,6 @@ const sunLight = new THREE.DirectionalLight(0xffffff, 1);
 sunLight.position.set(100, 0, 0); // Position the Sun far to the right
 scene.add(sunLight);
 
-// Add ambient light for visibility (optional, to brighten the Earth)
-const ambientLight = new THREE.AmbientLight(0x404040, 0.5); // Soft light, low intensity
-scene.add(ambientLight);
-
 // Position the camera
 camera.position.z = 20; // Adjusted for visibility
 
@@ -93,14 +102,14 @@ addStars();
 function animate() {
     requestAnimationFrame(animate);
 
-    // Earth rotation: Rotate only around the Y-axis
-    earth.rotation.y += 0.01; // Same speed as before
+    // Earth-like rotation: Rotate only around the Y-axis
+    numberSphere.rotation.y += 0.01; // Adjust speed for a smoother rotation
 
     // Moon's orbital motion
     angle += moonSpeed;
-    moon.position.x = earth.position.x + moonDistance * Math.cos(angle);
-    moon.position.z = earth.position.z + moonDistance * Math.sin(angle);
-    moon.position.y = earth.position.y; // Keeping it on the same plane
+    moon.position.x = numberSphere.position.x + moonDistance * Math.cos(angle);
+    moon.position.z = numberSphere.position.z + moonDistance * Math.sin(angle);
+    moon.position.y = numberSphere.position.y; // Keeping it on the same plane
 
     // Update sun direction for moon illumination
     const sunDirection = new THREE.Vector3(
