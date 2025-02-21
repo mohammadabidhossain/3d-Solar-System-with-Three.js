@@ -1,11 +1,42 @@
-//this is for an object to add in your website at the very corner or 
-middle of your website
+Solar System Visualization
+A simple webpage that visualizes celestial bodies, starting with Earth and the Moon. More planets will be added gradually. Contributions are welcome!
 
-//you can add earth and moon like object to attract 
-the customer 
+webpage link is
+[[Webpage](https://mdabidhossain.xyz/earth/)]
 
-//make your webstie much more vivid and animated.
+Features
+✅ Earth and Moon rendered in 3D
+✅ Gradual addition of other planets
+✅ Open-source and community-driven
 
-//its public so you can contribute to it
+Getting Started
+1. Clone the Repository
+sh
+Copy
+Edit
+git clone https://github.com/mohammadabidhossain/earth-model-for-webpage.git
+cd your-repo
+2. Open the Project
+Simply open index.html in your browser.
 
-thank you
+3. Install Dependencies (only one)
+    Install three.js
+
+How to Contribute
+We welcome contributions! Follow these steps:
+
+Fork the repository
+Create a new branch (git checkout -b feature-name)
+Make changes and commit (git commit -m "Added feature XYZ")
+Push to your fork (git push origin feature-name)
+Open a Pull Request
+Contribution Guidelines
+📌 Keep code clean and well-documented.
+📌 Follow best practices for performance and readability.
+📌 Test your changes before submitting a PR.
+
+Roadmap
+✔️ Earth and Moon (Completed)
+🔲 Add Mars
+🔲 Add Jupiter and its moons
+🔲 Implement realistic orbits
