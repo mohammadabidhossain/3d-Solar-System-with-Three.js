@@ -1,7 +1,7 @@
 🌍 Solar System Visualization
 A simple webpage that visualizes celestial bodies, starting with Earth and the Moon. More planets will be added gradually. Contributions are welcome!
 
-webpage link is
+Live Demo: 
 [[Webpage](https://mdabidhossain.xyz/earth/)]
 
 Features🌍 Solar System Visualization
