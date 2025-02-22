@@ -9,7 +9,7 @@ document.getElementById('scene-container').appendChild(renderer.domElement);
 
 // Sphere (Earth-like) parameters
 const radius = 5;
-const particleCount = 1000;
+const particleCount = 10000;
 
 const vertices = [];
 for (let i = 0; i < particleCount; i++) {
