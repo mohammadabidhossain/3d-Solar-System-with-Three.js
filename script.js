@@ -9,34 +9,22 @@ document.getElementById('scene-container').appendChild(renderer.domElement);
 
 // Sphere (Earth-like) parameters
 const radius = 5;
-const particleCount = 10000;
+let earth;
 
-const vertices = [];
-for (let i = 0; i < particleCount; i++) {
-    const theta = Math.random() * 2 * Math.PI;
-    const phi = Math.acos(2 * Math.random() - 1);
-    const x = radius * Math.sin(phi) * Math.cos(theta);
-    const y = radius * Math.sin(phi) * Math.sin(theta);
-    const z = radius * Math.cos(phi);
-    vertices.push(x, y, z);
-}
-
-const geometry = new THREE.BufferGeometry();
-geometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
-const material = new THREE.PointsMaterial({
-    color: 0xffffff,
-    size: 0.1,
-    transparent: true,
-    opacity: 0.8
+// Load the Earth texture and create the mesh
+const textureLoader = new THREE.TextureLoader();
+textureLoader.load('earth.jpg', (earthTexture) => {
+    const earthGeometry = new THREE.SphereGeometry(radius, 64, 64);
+    const earthMaterial = new THREE.MeshStandardMaterial({ map: earthTexture });
+    earth = new THREE.Mesh(earthGeometry, earthMaterial);
+    scene.add(earth);
+    earth.position.set(0, 0, 0);
 });
-const numberSphere = new THREE.Points(geometry, material);
-scene.add(numberSphere);
-numberSphere.position.set(0, 0, 0);
 
 // Moon parameters
 const moonRadius = 1;
 const moonDistance = 10;
-const moonGeometry = new THREE.SphereGeometry(moonRadius, 32, 32); // Increased resolution for smoother moon
+const moonGeometry = new THREE.SphereGeometry(moonRadius, 32, 32);
 
 // Moon shader material for phased illumination
 const moonVertexShader = `
@@ -52,8 +40,8 @@ const moonFragmentShader = `
     uniform vec3 sunDirection;
     void main() {
         float illumination = dot(vNormal, sunDirection);
-        illumination = smoothstep(-0.5, 0.5, illumination); // Smooth transition for phases
-        gl_FragColor = vec4(vec3(illumination), 1.0); // White color for illuminated part
+        illumination = smoothstep(-0.5, 0.5, illumination);
+        gl_FragColor = vec4(vec3(illumination), 1.0);
     }
 `;
 
@@ -61,7 +49,7 @@ const moonMaterial = new THREE.ShaderMaterial({
     vertexShader: moonVertexShader,
     fragmentShader: moonFragmentShader,
     uniforms: {
-        sunDirection: { value: new THREE.Vector3(1, 0, 0) } // Initial sun direction
+        sunDirection: { value: new THREE.Vector3(1, 0, 0) }
     }
 });
 
@@ -70,11 +58,11 @@ scene.add(moon);
 
 // Add a directional light for the Sun
 const sunLight = new THREE.DirectionalLight(0xffffff, 1);
-sunLight.position.set(100, 0, 0); // Position the Sun far to the right
+sunLight.position.set(100, 0, 0);
 scene.add(sunLight);
 
 // Position the camera
-camera.position.z = 20; // Adjusted for visibility
+camera.position.z = 20;
 
 // Moon orbit variables
 let angle = 0;
@@ -102,14 +90,16 @@ addStars();
 function animate() {
     requestAnimationFrame(animate);
 
-    // Earth-like rotation: Rotate only around the Y-axis
-    numberSphere.rotation.y += 0.01; // Adjust speed for a smoother rotation
+    // Rotate the Earth if it’s loaded
+    if (earth) {
+        earth.rotation.y += 0.01; // Same rotation speed as before
+    }
 
     // Moon's orbital motion
     angle += moonSpeed;
-    moon.position.x = numberSphere.position.x + moonDistance * Math.cos(angle);
-    moon.position.z = numberSphere.position.z + moonDistance * Math.sin(angle);
-    moon.position.y = numberSphere.position.y; // Keeping it on the same plane
+    moon.position.x = (earth ? earth.position.x : 0) + moonDistance * Math.cos(angle);
+    moon.position.z = (earth ? earth.position.z : 0) + moonDistance * Math.sin(angle);
+    moon.position.y = earth ? earth.position.y : 0;
 
     // Update sun direction for moon illumination
     const sunDirection = new THREE.Vector3(
