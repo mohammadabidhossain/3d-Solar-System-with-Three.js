@@ -22,8 +22,8 @@ textureLoader.load('earth.jpg', (earthTexture) => {
 });
 
 // Moon parameters
-const moonRadius = 1;
-const moonDistance = 10;
+const moonRadius = 1; // Reverted to original size
+const moonDistance = 8;
 const moonGeometry = new THREE.SphereGeometry(moonRadius, 32, 32);
 
 // Moon shader material for phased illumination
@@ -58,7 +58,7 @@ scene.add(moon);
 
 // Add a directional light for the Sun
 const sunLight = new THREE.DirectionalLight(0xffffff, 1);
-sunLight.position.set(100, 0, 0);
+sunLight.position.set(0, 0, 100); // Moved to the front (positive Z-axis)
 scene.add(sunLight);
 
 // Position the camera
@@ -66,7 +66,7 @@ camera.position.z = 20;
 
 // Moon orbit variables
 let angle = 0;
-const moonSpeed = 0.015;
+const moonSpeed = 0.010;
 
 // Add stars to the background
 function addStars() {
