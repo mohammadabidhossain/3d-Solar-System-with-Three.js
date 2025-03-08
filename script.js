@@ -7,8 +7,17 @@ const renderer = new THREE.WebGLRenderer({ alpha: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.getElementById('scene-container').appendChild(renderer.domElement);
 
+// Add OrbitControls
+const controls = new THREE.OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true; // Smooth camera movement
+controls.dampingFactor = 0.05; // Damping inertia
+controls.screenSpacePanning = false; // Pan in world space
+controls.minDistance = 10; // Minimum zoom distance
+controls.maxDistance = 200; // Maximum zoom distance (adjusted for larger scene)
+controls.target.set(0, 0, 0); // Look at the center of the scene (Sun's position)
+
 // Sun parameters
-const sunRadius = 6;
+const sunRadius = 8;
 const sunGeometry = new THREE.SphereGeometry(sunRadius, 64, 64);
 let sun; // Define sun in the outer scope
 
@@ -35,19 +44,10 @@ const sunLight = new THREE.PointLight(0xffffff, 2, 100);
 sunLight.position.set(0, 0, 0); // Co-located with the Sun
 scene.add(sunLight);
 
-// Enhance Sun glow (larger, semi-transparent glow sphere)
-const sunGlowGeometry = new THREE.SphereGeometry(sunRadius * 1.8, 64, 64);
-const sunGlowMaterial = new THREE.MeshBasicMaterial({
-    color: 0xffd700, // Gold/yellow glow
-    transparent: true,
-    opacity: 0.2,
-});
-const sunGlow = new THREE.Mesh(sunGlowGeometry, sunGlowMaterial);
-scene.add(sunGlow);
-sunGlow.position.set(0, 0, 0);
+
 
 // Sphere (Earth-like) parameters
-const radius = 5;
+const radius = 3;
 let earth; // Define earth in the outer scope
 
 // Load the Earth texture and create the mesh
@@ -58,7 +58,7 @@ textureLoader.load(
         const earthMaterial = new THREE.MeshStandardMaterial({ map: earthTexture });
         earth = new THREE.Mesh(earthGeometry, earthMaterial); // Assign to outer scope
         scene.add(earth);
-        earth.position.set(20, 0, 0); // Initial position away from Sun
+        earth.position.set(12000, 0, 0); // Initial position away from Sun (using earthOrbitRadius)
     },
     undefined,
     (err) => {
@@ -67,7 +67,7 @@ textureLoader.load(
 );
 
 // Moon parameters
-const moonRadius = 1;
+const moonRadius = 0.7;
 const moonDistanceFromEarth = 8;
 const moonGeometry = new THREE.SphereGeometry(moonRadius, 32, 32);
 const moonMaterial = new THREE.MeshPhongMaterial({ color: 0xffffff }); // Simple white moon
@@ -128,7 +128,7 @@ function addStars() {
 addStars();
 
 // Position the camera
-camera.position.z = 50; // Adjusted to see the whole system
+camera.position.z = 70; // Adjusted to see the whole system
 
 // Animation loop
 function animate() {
@@ -141,7 +141,11 @@ function animate() {
 
     // Rotate the Earth if it exists
     if (earth) {
-        earth.rotation.y += 0.01;
+        // Adjust rotation to 365 times per orbit (using frame-rate independent method)
+        const clock = new THREE.Clock();
+        const deltaTime = clock.getDelta();
+        const rotationsPerSecond = 365 / (2 * Math.PI / earthOrbitSpeed); // Approx rotations per second
+        earth.rotation.y += rotationsPerSecond * 2 * Math.PI * deltaTime;
 
         // Earth's orbit around the Sun
         earthAngle += earthOrbitSpeed;
@@ -159,8 +163,11 @@ function animate() {
     const sunDirection = new THREE.Vector3().subVectors(sunLight.position, moon.position).normalize();
     moon.material.uniforms.sunDirection.value.copy(sunDirection);
 
+    // Update controls
+    controls.update();
+
     renderer.render(scene, camera);
 }
 
-// Start animation
+// Start nimation
 animate();
