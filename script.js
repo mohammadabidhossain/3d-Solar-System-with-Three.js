@@ -44,8 +44,6 @@ const sunLight = new THREE.PointLight(0xffffff, 2, 100);
 sunLight.position.set(0, 0, 0); // Co-located with the Sun
 scene.add(sunLight);
 
-
-
 // Sphere (Earth-like) parameters
 const radius = 3;
 let earth; // Define earth in the outer scope
@@ -109,6 +107,23 @@ const earthOrbitSpeed = 0.005;
 let moonAngle = 0;
 const moonSpeed = 0.010;
 
+// Function to create an orbit circle
+function createOrbitCircle(radius, color) {
+    const orbitGeometry = new THREE.RingGeometry(radius - 0.1, radius, 64);
+    const orbitMaterial = new THREE.MeshBasicMaterial({ color: color, side: THREE.DoubleSide, transparent: true, opacity: 0.5 });
+    const orbitCircle = new THREE.Mesh(orbitGeometry, orbitMaterial);
+    orbitCircle.rotation.x = Math.PI / 2; // Rotate to align with the XZ plane
+    return orbitCircle;
+}
+
+// Create Earth's orbit circle
+const earthOrbitCircle = createOrbitCircle(earthOrbitRadius, 0x00ff00);
+scene.add(earthOrbitCircle);
+
+// Create Moon's orbit circle
+const moonOrbitCircle = createOrbitCircle(moonDistanceFromEarth, 0x0000ff);
+scene.add(moonOrbitCircle);
+
 // Add stars to the background
 function addStars() {
     const starsGeometry = new THREE.BufferGeometry();
@@ -157,6 +172,10 @@ function animate() {
         moon.position.x = earth.position.x + moonDistanceFromEarth * Math.cos(moonAngle);
         moon.position.z = earth.position.z + moonDistanceFromEarth * Math.sin(moonAngle);
         moon.position.y = earth.position.y;
+
+        // Update Moon's orbit circle position to follow Earth
+        moonOrbitCircle.position.x = earth.position.x;
+        moonOrbitCircle.position.z = earth.position.z;
     }
 
     // Update sun direction for moon illumination
@@ -169,5 +188,5 @@ function animate() {
     renderer.render(scene, camera);
 }
 
-// Start nimation
+// Start animation
 animate();
