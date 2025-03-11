@@ -101,8 +101,8 @@ moon.material = new THREE.ShaderMaterial({
 
 // Orbit variables
 let earthAngle = 0;
-const earthOrbitRadius = 20; // Distance of Earth from Sun
-const earthOrbitSpeed = 0.005;
+const earthOrbitRadius = 40; // Distance of Earth from Sun
+const earthOrbitSpeed = 0.009;
 
 let moonAngle = 0;
 const moonSpeed = 0.010;
@@ -117,11 +117,11 @@ function createOrbitCircle(radius, color) {
 }
 
 // Create Earth's orbit circle
-const earthOrbitCircle = createOrbitCircle(earthOrbitRadius, 0x00ff00);
+const earthOrbitCircle = createOrbitCircle(earthOrbitRadius, 0xffffff);
 scene.add(earthOrbitCircle);
 
 // Create Moon's orbit circle
-const moonOrbitCircle = createOrbitCircle(moonDistanceFromEarth, 0x0000ff);
+const moonOrbitCircle = createOrbitCircle(moonDistanceFromEarth, 0xffffff);
 scene.add(moonOrbitCircle);
 
 // Add stars to the background
