@@ -2,7 +2,7 @@
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x000000);
 
-const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+const camera = new THREE.PerspectiveCamera(100, window.innerWidth / window.innerHeight, 0.1, 1000);
 const renderer = new THREE.WebGLRenderer({ alpha: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.getElementById('scene-container').appendChild(renderer.domElement);
@@ -10,7 +10,7 @@ document.getElementById('scene-container').appendChild(renderer.domElement);
 // Add OrbitControls
 const controls = new THREE.OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true; // Smooth camera movement
-controls.dampingFactor = 0.05; // Damping inertia
+controls.dampingFactor = 0.5; // Damping inertia
 controls.screenSpacePanning = false; // Pan in world space
 controls.minDistance = 10; // Minimum zoom distance
 controls.maxDistance = 200; // Maximum zoom distance (adjusted for larger scene)
@@ -56,7 +56,8 @@ textureLoader.load(
         const earthMaterial = new THREE.MeshStandardMaterial({ map: earthTexture });
         earth = new THREE.Mesh(earthGeometry, earthMaterial); // Assign to outer scope
         scene.add(earth);
-        earth.position.set(12000, 0, 0); // Initial position away from Sun (using earthOrbitRadius)
+        earth.position.x = 40; // Start at the orbit radius (matches earthOrbitRadius)
+        earth.rotation.y = 0; // Initialize rotation to a known state
     },
     undefined,
     (err) => {
@@ -149,26 +150,22 @@ camera.position.z = 70; // Adjusted to see the whole system
 function animate() {
     requestAnimationFrame(animate);
 
-    // Rotate the Sun if it exists
+    // Rotate the Sun if it exists (counterclockwise)
     if (sun) {
         sun.rotation.y += 0.002;
     }
 
-    // Rotate the Earth if it exists
+    // Rotate the Earth if it exists (counterclockwise, simple rotation like Sun)
     if (earth) {
-        // Adjust rotation to 365 times per orbit (using frame-rate independent method)
-        const clock = new THREE.Clock();
-        const deltaTime = clock.getDelta();
-        const rotationsPerSecond = 365 / (2 * Math.PI / earthOrbitSpeed); // Approx rotations per second
-        earth.rotation.y += rotationsPerSecond * 2 * Math.PI * deltaTime;
+        earth.rotation.y += 0.02; // Simple counterclockwise rotation, matching Sun's speed
 
-        // Earth's orbit around the Sun
-        earthAngle += earthOrbitSpeed;
+        // Earth's orbit around the Sun (counterclockwise)
+        earthAngle -= earthOrbitSpeed; // Counterclockwise orbit
         earth.position.x = sunLight.position.x + earthOrbitRadius * Math.cos(earthAngle);
         earth.position.z = sunLight.position.z + earthOrbitRadius * Math.sin(earthAngle);
 
-        // Moon's orbit around Earth
-        moonAngle += moonSpeed;
+        // Moon's orbit around Earth (counterclockwise)
+        moonAngle -= moonSpeed; // Counterclockwise orbit
         moon.position.x = earth.position.x + moonDistanceFromEarth * Math.cos(moonAngle);
         moon.position.z = earth.position.z + moonDistanceFromEarth * Math.sin(moonAngle);
         moon.position.y = earth.position.y;
