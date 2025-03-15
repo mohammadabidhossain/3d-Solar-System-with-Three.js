@@ -3,12 +3,39 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Solar Model</title>
+    <meta name="description" content="Explore a 3D animation of the Earth and Moon orbiting the Sun, built with Three.js. Perfect for astronomy and web development fans.">
+    <title>Interactive 3D Solar System: Earth and Moon Orbit with Three.js</title>
     <link rel="stylesheet" href="styles.css">
+    <style>
+        /* Inline CSS for simplicity; you can move this to styles.css */
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden; /* Prevents scrollbars */
+        }
+        #scene-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh; /* Full viewport height */
+        }
+        h1, h2, p {
+            position: absolute;
+            visibility: hidden; /* Hides text but keeps it in HTML for SEO */
+        }
+    </style>
 </head>
 <body>
+    <h1>3D Solar System Animation with Three.js</h1>
+    <h2>Earth and Moon Orbit Simulation</h2>
+    <p>Welcome to my interactive solar system simulation! Using Three.js, this 3D model showcases the Earth and Moon orbiting the Sun, with the Moon also rotating around the Earth. It’s a stunning example of WebGL and Three.js in action, perfect for astronomy enthusiasts and web developers.</p>
     <div id="scene-container"></div>
+    <!-- Load three.min.js from CDN -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
+    <!-- Load the local OrbitControls.js -->
+    <script src="OrbitControls.js"></script>
+    <!-- Load your script -->
     <script src="script.js"></script>
 </body>
 </html>
