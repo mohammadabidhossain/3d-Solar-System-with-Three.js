@@ -21,10 +21,16 @@ controls.maxDistance = 200;
 controls.target.set(0, 0, 0);
 
 // Orbital parameters for Earth's elliptical orbit
-const a = 40; // Semi-major axis (scaled Earth-Sun distance)
-const e = 0.2; // Increased eccentricity for a more noticeable ellipse (real Earth: 0.0167)
-let meanAnomaly = 0; // Starting mean anomaly
-const meanAnomalyStep = 0.009; // Speed of orbit
+const aEarth = 40; // Semi-major axis (scaled Earth-Sun distance, 1 AU)
+const eEarth = 0.2; // Increased eccentricity for a more noticeable ellipse (real Earth: 0.0167)
+let meanAnomalyEarth = 0; // Starting mean anomaly
+const meanAnomalyStepEarth = 0.009; // Speed of Earth's orbit
+
+// Orbital parameters for Mars' elliptical orbit
+const aMars = 60.8; // Semi-major axis (scaled Mars-Sun distance, 1.52 AU, 1.52 * 40)
+const eMars = 0.2; // Eccentricity (real Mars: 0.0934, but using 0.2 to match Earth)
+let meanAnomalyMars = 0; // Starting mean anomaly for Mars
+const meanAnomalyStepMars = 0.0048; // Speed of Mars' orbit (slower, since Mars' orbital period is ~1.88 Earth years)
 
 // Function to solve Kepler's equation using Newton's method
 function solveKepler(M, e, tolerance = 1e-6, maxIterations = 100) {
@@ -68,24 +74,46 @@ sunLight.position.set(0, 0, 0);
 scene.add(sunLight);
 
 // Earth parameters
-const radius = 3;
+const earthRadius = 3;
 let earth;
 
 // Load the Earth texture and create the mesh
 textureLoader.load(
     'earth.jpg',
     (earthTexture) => {
-        const earthGeometry = new THREE.SphereGeometry(radius, 64, 64);
+        const earthGeometry = new THREE.SphereGeometry(earthRadius, 64, 64);
         const earthMaterial = new THREE.MeshStandardMaterial({ map: earthTexture });
         earth = new THREE.Mesh(earthGeometry, earthMaterial);
         scene.add(earth);
-        earth.position.x = a * (1 - e); // Start at perihelion
+        earth.position.x = aEarth * (1 - eEarth); // Start at perihelion
         earth.position.z = 0;
         earth.rotation.y = 0;
     },
     undefined,
     (err) => {
         console.error('Error loading Earth texture:', err);
+    }
+);
+
+// Mars parameters
+const marsRadius = 1.596; // Slightly smaller than Earth
+let mars;
+
+// Load a Mars texture (you'll need to provide a 'mars.jpg' texture file)
+textureLoader.load(
+    'mars.jpg', // Replace with the path to your Mars texture
+    (marsTexture) => {
+        const marsGeometry = new THREE.SphereGeometry(marsRadius, 64, 64);
+        const marsMaterial = new THREE.MeshStandardMaterial({ map: marsTexture });
+        mars = new THREE.Mesh(marsGeometry, marsMaterial);
+        scene.add(mars);
+        mars.position.x = aMars * (1 - eMars); // Start at perihelion
+        mars.position.z = 0;
+        mars.rotation.y = 0;
+    },
+    undefined,
+    (err) => {
+        console.error('Error loading Mars texture:', err);
     }
 );
 
@@ -126,7 +154,7 @@ moon.material = new THREE.ShaderMaterial({
 
 // Orbit variables
 let moonAngle = 0;
-const moonSpeed = 0.010;
+const moonSpeed = 0.09203;
 
 // Function to create an orbit circle (for Moon)
 function createOrbitCircle(radius, color) {
@@ -142,18 +170,31 @@ const moonOrbitCircle = createOrbitCircle(moonDistanceFromEarth, 0xffffff);
 scene.add(moonOrbitCircle);
 
 // Create Earth's elliptical orbit path
-const orbitPoints = [];
+const earthOrbitPoints = [];
 const numPoints = 100;
 for (let i = 0; i <= numPoints; i++) {
     const E = (i / numPoints) * 2 * Math.PI; // Sample eccentric anomaly
-    const x = a * (Math.cos(E) - e);
-    const z = a * Math.sqrt(1 - e * e) * Math.sin(E);
-    orbitPoints.push(new THREE.Vector3(x, 0, z));
+    const x = aEarth * (Math.cos(E) - eEarth);
+    const z = aEarth * Math.sqrt(1 - eEarth * eEarth) * Math.sin(E);
+    earthOrbitPoints.push(new THREE.Vector3(x, 0, z));
 }
-const orbitGeometry = new THREE.BufferGeometry().setFromPoints(orbitPoints);
-const orbitMaterial = new THREE.LineBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.5 });
-const earthOrbitPath = new THREE.Line(orbitGeometry, orbitMaterial);
+const earthOrbitGeometry = new THREE.BufferGeometry().setFromPoints(earthOrbitPoints);
+const earthOrbitMaterial = new THREE.LineBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.5 });
+const earthOrbitPath = new THREE.Line(earthOrbitGeometry, earthOrbitMaterial);
 scene.add(earthOrbitPath);
+
+// Create Mars' elliptical orbit path
+const marsOrbitPoints = [];
+for (let i = 0; i <= numPoints; i++) {
+    const E = (i / numPoints) * 2 * Math.PI; // Sample eccentric anomaly
+    const x = aMars * (Math.cos(E) - eMars);
+    const z = aMars * Math.sqrt(1 - eMars * eMars) * Math.sin(E);
+    marsOrbitPoints.push(new THREE.Vector3(x, 0, z));
+}
+const marsOrbitGeometry = new THREE.BufferGeometry().setFromPoints(marsOrbitPoints);
+const marsOrbitMaterial = new THREE.LineBasicMaterial({ color: 0xff0000, transparent: true, opacity: 0.5 }); // Red for Mars
+const marsOrbitPath = new THREE.Line(marsOrbitGeometry, marsOrbitMaterial);
+scene.add(marsOrbitPath);
 
 // Add stars to the background
 function addStars() {
@@ -173,8 +214,10 @@ function addStars() {
 }
 addStars();
 
+
+
 // Position the camera
-camera.position.z = 70;
+camera.position.z = 100; // Adjusted to see Mars' orbit
 
 // Animation loop
 function animate() {
@@ -185,16 +228,16 @@ function animate() {
         sun.rotation.y += 0.002;
     }
 
-    // Rotate the Earth if it exists (counterclockwise)
+    // Update Earth's position and rotation
     if (earth) {
         earth.rotation.y += 0.02;
 
         // Earth's orbit around the Sun (elliptical, counterclockwise)
-        meanAnomaly -= meanAnomalyStep; // Decrease for counterclockwise motion
-        if (meanAnomaly < 0) meanAnomaly += 2 * Math.PI; // Wrap around
-        const E = solveKepler(meanAnomaly, e); // Solve for eccentric anomaly
-        earth.position.x = a * (Math.cos(E) - e); // X position
-        earth.position.z = a * Math.sqrt(1 - e * e) * Math.sin(E); // Z position
+        meanAnomalyEarth -= meanAnomalyStepEarth; // Decrease for counterclockwise motion
+        if (meanAnomalyEarth < 0) meanAnomalyEarth += 2 * Math.PI; // Wrap around
+        const E_earth = solveKepler(meanAnomalyEarth, eEarth); // Solve for eccentric anomaly
+        earth.position.x = aEarth * (Math.cos(E_earth) - eEarth); // X position
+        earth.position.z = aEarth * Math.sqrt(1 - eEarth * eEarth) * Math.sin(E_earth); // Z position
 
         // Moon's orbit around Earth (counterclockwise)
         moonAngle -= moonSpeed;
@@ -207,9 +250,23 @@ function animate() {
         moonOrbitCircle.position.z = earth.position.z;
     }
 
+    // Update Mars' position and rotation
+    if (mars) {
+        mars.rotation.y += 0.015; // Slightly slower rotation than Earth
+
+        // Mars' orbit around the Sun (elliptical, counterclockwise)
+        meanAnomalyMars -= meanAnomalyStepMars; // Decrease for counterclockwise motion
+        if (meanAnomalyMars < 0) meanAnomalyMars += 2 * Math.PI; // Wrap around
+        const E_mars = solveKepler(meanAnomalyMars, eMars); // Solve for eccentric anomaly
+        mars.position.x = aMars * (Math.cos(E_mars) - eMars); // X position
+        mars.position.z = aMars * Math.sqrt(1 - eMars * eMars) * Math.sin(E_mars); // Z position
+    }
+
     // Update sun direction for moon illumination
     const sunDirection = new THREE.Vector3().subVectors(sunLight.position, moon.position).normalize();
     moon.material.uniforms.sunDirection.value.copy(sunDirection);
+
+
 
     // Update controls
     controls.update();
