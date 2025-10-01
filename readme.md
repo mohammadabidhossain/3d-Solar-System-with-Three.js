@@ -7,7 +7,7 @@ Live Demo:
 Features🌍 Solar System Visualization
 A simple webpage that visualizes celestial bodies, starting with Earth and the Moon. More planets will be added gradually. Contributions are welcome!
 
-🔗 Live Demo: Webpage
+you can Clone and push some recommendation. Thanks. 
 
 🚀 Features
 ✅ 3D rendering of Earth and Moon
