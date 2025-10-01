@@ -2,7 +2,7 @@
 A simple webpage that visualizes celestial bodies, starting with Earth and the Moon. More planets will be added gradually. Contributions are welcome!
 
 Live Demo: 
-[[Webpage](https://mdabidhossain.xyz/earth/)]
+[[Webpage]([https://mdabidhossain.xyz/earth/](https://mohammadabidhossain.github.io/3d-Solar-System-with-Three.js/)]
 
 Features🌍 Solar System Visualization
 A simple webpage that visualizes celestial bodies, starting with Earth and the Moon. More planets will be added gradually. Contributions are welcome!
